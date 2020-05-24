@@ -30,12 +30,11 @@ public class UserMealsUtil {
 
     public static List<UserMealWithExcess> filteredByCycles(List<UserMeal> meals, LocalTime startTime, LocalTime endTime, int caloriesPerDay) {
         // return filtered list with excess. Implement by cycles
-        meals.sort(Comparator.comparing(UserMeal::getDateTime)); //O(n log(n))
 
-        List<UserMealWithExcess> filteredMeals = new ArrayList<>();
-        List<LocalDate> excessDays = getExcessDays(meals,caloriesPerDay);
+        List<UserMealWithExcess> filteredMeals = new ArrayList<>(meals.size());
+        List<LocalDate> excessDays = getExcessDays(meals,caloriesPerDay);//O(n)
 
-        //O(n+m), в худшем случае мы каждый день превысили норму m=n -> O(n+m) = O(2n) = O(n)
+        //O(n+m), in worse case m=n -> O(n+m) = O(2n) = O(n)
         for (UserMeal meal:meals) {//O(n)
             if (TimeUtil.isBetweenHalfOpen(meal.getDateTime().toLocalTime(), startTime, endTime)) {
                 LocalDate mealDay = LocalDate.from(meal.getDateTime());
@@ -44,38 +43,32 @@ public class UserMealsUtil {
                         meal.getDescription(),
                         meal.getCalories(),
                         excess);
-                filteredMeals.add(mealWithExcess);//O(n), можно сделать O(1), если сразу создать список размером meals.size
+                filteredMeals.add(mealWithExcess);//O(1)
             }
         }
 
         return filteredMeals;
     }
 
-    private static List<LocalDate> getExcessDays (List<UserMeal> meals, int caloriesPerDay) {
+    private static List<LocalDate> getExcessDays (List<UserMeal> meals, int maxCaloriesPerDay) {
 
         if (meals == null || meals.isEmpty()) return new ArrayList<LocalDate>();
 
-        List<LocalDate> excessDays = new ArrayList<>();
-        int sumCalories = 0;
-        LocalDate day = LocalDate.from(meals.get(0).getDateTime());
-
+        Map<LocalDate,Integer> caloriesPerDay = new HashMap<>();
 
         //O(n)
-        for (UserMeal meal:meals
-             ) {
+        for (UserMeal meal:meals) {
             LocalDate mealDay = LocalDate.from(meal.getDateTime());
-            if (mealDay.compareTo(day) == 0)
-                sumCalories += meal.getCalories();
-            else {
-                if (sumCalories > caloriesPerDay)
-                    excessDays.add(mealDay);
-                day = mealDay;
-                sumCalories = meal.getCalories();
-            }
+            int calories = caloriesPerDay.containsKey(mealDay) ? caloriesPerDay.get(mealDay) : 0;
+            calories += meal.getCalories();
+            caloriesPerDay.put(mealDay,calories); //O(1)??
         }
 
-        if (sumCalories > caloriesPerDay)
-            excessDays.add(day);
+        List<LocalDate> excessDays = new ArrayList<>();
+        for (Map.Entry<LocalDate, Integer> entry:caloriesPerDay.entrySet()) {
+            if (entry.getValue() > maxCaloriesPerDay)
+                excessDays.add(entry.getKey());
+        }
 
         return excessDays;
     }
