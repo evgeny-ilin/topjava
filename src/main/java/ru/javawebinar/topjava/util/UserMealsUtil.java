@@ -25,11 +25,22 @@ public class UserMealsUtil {
                 new UserMeal(LocalDateTime.of(2020, Month.JANUARY, 31, 20, 0), "Ужин", 410)
         );
 
+        System.out.println("filteredByCycles");
         List<UserMealWithExcess> mealsTo = filteredByCycles(meals, LocalTime.of(7, 0), LocalTime.of(12, 0), 2000);
-        //List<UserMealWithExcess> mealsTo = filteredByCyclesOptional2(meals, LocalTime.of(7, 0), LocalTime.of(12, 0), 2000);
         mealsTo.forEach(System.out::println);
 
+        System.out.println();
+        System.out.println("filteredByCyclesOptional2");
+        List<UserMealWithExcess> mealsToOpt2 = filteredByCyclesOptional2(meals, LocalTime.of(7, 0), LocalTime.of(12, 0), 2000);
+        mealsToOpt2.forEach(System.out::println);
+
+        System.out.println();
+        System.out.println("filteredByStreams");
         System.out.println(filteredByStreams(meals, LocalTime.of(7, 0), LocalTime.of(12, 0), 2000));
+
+        System.out.println();
+        System.out.println("filteredByStreamsOptional2");
+        System.out.println(filteredByStreamsOptional2(meals, LocalTime.of(7, 0), LocalTime.of(12, 0), 2000));
     }
 
     public static List<UserMealWithExcess> filteredByCycles(List<UserMeal> meals, LocalTime startTime, LocalTime endTime, int caloriesPerDay) {
@@ -56,7 +67,7 @@ public class UserMealsUtil {
 
     private static List<LocalDate> getExcessDays (List<UserMeal> meals, int maxCaloriesPerDay) {
 
-        if (meals == null || meals.isEmpty()) return new ArrayList<LocalDate>();
+        if (meals == null || meals.isEmpty()) return new ArrayList<>();
 
         Map<LocalDate,Integer> caloriesPerDay = new HashMap<>();
 
@@ -75,9 +86,12 @@ public class UserMealsUtil {
         return excessDays;
     }
 
+    /*
+    Реализовать метод `UserMealsUtil.filteredByStreams` через Java 8 Stream API.
+     */
     public static List<UserMealWithExcess> filteredByStreams(List<UserMeal> meals, LocalTime startTime, LocalTime endTime, int maxCaloriesPerDay) {
         Map<LocalDate,Integer> caloriesPerDay = meals.stream()
-                .collect(Collectors.groupingBy(x->LocalDate.from(x.getDateTime()),Collectors.summingInt(x->x.getCalories())));
+                .collect(Collectors.groupingBy(x->LocalDate.from(x.getDateTime()),Collectors.summingInt(UserMeal::getCalories)));
 
         List<UserMeal> filteredMeals = meals.stream()
                 .filter(userMeal ->
@@ -104,9 +118,9 @@ public class UserMealsUtil {
         решение должно быть рабочим в общем случае (не только при запуске main)
      */
     public static List<UserMealWithExcess> filteredByCyclesOptional2(List<UserMeal> meals, LocalTime startTime, LocalTime endTime, int maxCaloriesPerDay) {
-        Map<LocalDate,List<UserMealWithExcess>> filteredMeals = new HashMap<>();
-        List<LocalDate> excessDays = new ArrayList<>();
         Map<LocalDate,Integer> caloriesPerDay = new HashMap<>();
+
+        List<UserMealWithExcess> result = new ArrayList<>();
 
         //O(n+m), in worse case m=n -> O(n+m) = O(2n) = O(n)
         for (UserMeal meal:meals) {//O(n)
@@ -117,25 +131,30 @@ public class UserMealsUtil {
                         meal.getDescription(),
                         meal.getCalories(),
                         false);
-               List<UserMealWithExcess> list = filteredMeals.getOrDefault(mealDay,new ArrayList<>());
-               list.add(mealWithExcess);
-               filteredMeals.put(mealDay,list);
+               result.add(mealWithExcess);
             }
 
-            caloriesPerDay.merge(mealDay,meal.getCalories(),(oldVal, newVal) -> oldVal + newVal);
+            caloriesPerDay.merge(mealDay,meal.getCalories(), Integer::sum);
 
+            //No cycles )))
             if (caloriesPerDay.get(mealDay) > maxCaloriesPerDay) {
-                filteredMeals.get(mealDay).stream().forEach(x -> x.setExcess(true));
+                result.stream()
+                        .filter(x->LocalDate.from(x.getDateTime()).equals(mealDay))
+                        .forEach(x -> x.setExcess(true));
             }
         }
 
-
-
-        return null;
+        return result;
     }
 
+    /*
+    через Stream API за 1 проход по исходному списку meals.streem()
+    нельзя использовать внешние коллекции, не являющиеся частью коллектора или 2 раза проходить по исходному списку (в том числе модифицированному, например отфильтрованному). Т.е. в решении не должно быть 2 раза meal.stream() (в том числе неявно, в составных коллекторах)
+    возможно дополнительные проходы по частям списка
+     */
     public static List<UserMealWithExcess> filteredByStreamsOptional2(List<UserMeal> meals, LocalTime startTime, LocalTime endTime, int caloriesPerDay) {
-        // TODO Implement by streams
-        return null;
+        List<UserMealWithExcess> result = new ArrayList<>();
+        //план разобраться с тем как сделать свой коллектор
+        return result;
     }
 }
