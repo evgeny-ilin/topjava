@@ -20,7 +20,17 @@ public class UserMealWithExcess {
         this.excess = excess;
     }
 
-    public LocalTime getTime() {return dateTime.toLocalTime();}
+    public void setExcess(boolean excess) {
+        this.excess = excess;
+    }
+
+    public LocalTime getTime() {
+        return dateTime.toLocalTime();
+    }
+
+    public LocalDate getDate() {
+        return dateTime.toLocalDate();
+    }
 
     @Override
     public String toString() {

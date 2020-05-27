@@ -21,8 +21,13 @@ public class UserMeal {
         return dateTime;
     }
 
-    public LocalDate getDate() {return dateTime.toLocalDate();}
-    public LocalTime getTime() {return dateTime.toLocalTime();}
+    public LocalDate getDate() {
+        return dateTime.toLocalDate();
+    }
+
+    public LocalTime getTime() {
+        return dateTime.toLocalTime();
+    }
 
     public String getDescription() {
         return description;
