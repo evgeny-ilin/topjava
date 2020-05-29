@@ -11,6 +11,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class UserMealsUtil {
+    private static Map<LocalDate, Integer> caloriesPerDay = new HashMap<>();
+    private static List<UserMealWithExcess> mealWithExcessList = new ArrayList<>();
+
     public static void main(String[] args) {
         List<UserMeal> meals = Arrays.asList(
                 new UserMeal(LocalDateTime.of(2020, Month.JANUARY, 31, 13, 0), "Обед", 500),
@@ -33,12 +36,16 @@ public class UserMealsUtil {
         System.out.println(filteredByStreams(meals, LocalTime.of(7, 0), LocalTime.of(12, 0), 2000));
 
         System.out.println();
+        System.out.println("filteredByCyclesOptional2");
+        System.out.println(filteredByCyclesOptional2(meals, LocalTime.of(7, 0), LocalTime.of(12, 0), 2000));
+
+        System.out.println();
         System.out.println("filteredByStreamsOptional2");
         System.out.println(filteredByStreamsOptional2(meals, LocalTime.of(7, 0), LocalTime.of(12, 0), 2000));
     }
 
     static List<UserMealWithExcess> filteredByCycles(List<UserMeal> meals, LocalTime startTime, LocalTime endTime, int maxCaloriesPerDay) {
-        Map<LocalDate, Integer> caloriesPerDay = new HashMap<>();
+        caloriesPerDay.clear();
         for (UserMeal meal : meals) {
             LocalDate mealDay = meal.getDate();
             caloriesPerDay.merge(mealDay, meal.getCalories(), Integer::sum);//O(1)
@@ -46,7 +53,7 @@ public class UserMealsUtil {
 
         List<UserMealWithExcess> filteredMeals = new ArrayList<>(meals.size());
         for (UserMeal meal : meals) {
-            if (TimeUtil.isBetweenHalfOpen(meal.getDateTime().toLocalTime(), startTime, endTime)) {
+            if (TimeUtil.isBetweenHalfOpen(meal.getTime(), startTime, endTime)) {
                 LocalDate mealDay = meal.getDate();
                 boolean excess = caloriesPerDay.get(mealDay) > maxCaloriesPerDay;
                 UserMealWithExcess mealWithExcess = new UserMealWithExcess(meal.getDateTime(),
@@ -57,6 +64,31 @@ public class UserMealsUtil {
             }
         }
         return filteredMeals;
+    }
+
+    static List<UserMealWithExcess> filteredByCyclesOptional2(List<UserMeal> meals, LocalTime startTime, LocalTime endTime, int maxCaloriesPerDay) {
+        caloriesPerDay.clear();
+        mealWithExcessList.clear();
+        setMealWithExcess(meals, startTime, endTime, maxCaloriesPerDay, 0);
+        return mealWithExcessList;
+    }
+
+    private static void setMealWithExcess(List<UserMeal> meals, LocalTime startTime, LocalTime endTime, int maxCaloriesPerDay, int idx) {
+        UserMeal meal = meals.get(idx);
+        caloriesPerDay.merge(meal.getDate(), meal.getCalories(), Integer::sum);
+        if (idx == meals.size() - 1) return;
+
+        setMealWithExcess(meals, startTime, endTime, maxCaloriesPerDay, ++idx);
+
+        if (TimeUtil.isBetweenHalfOpen(meal.getTime(), startTime, endTime)) {
+            LocalDate mealDay = meal.getDate();
+            boolean excess = caloriesPerDay.get(mealDay) > maxCaloriesPerDay;
+            UserMealWithExcess mealWithExcess = new UserMealWithExcess(meal.getDateTime(),
+                    meal.getDescription(),
+                    meal.getCalories(),
+                    excess);
+            mealWithExcessList.add(mealWithExcess);
+        }
     }
 
     static List<UserMealWithExcess> filteredByStreams(List<UserMeal> meals, LocalTime startTime, LocalTime endTime, int maxCaloriesPerDay) {
