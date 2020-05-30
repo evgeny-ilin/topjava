@@ -13,14 +13,12 @@ import java.util.stream.Collectors;
 public class UserMealsUtil {
     public static void main(String[] args) {
         List<UserMeal> meals = Arrays.asList(
-                new UserMeal(LocalDateTime.of(2020, Month.JANUARY, 31, 13, 0), "Обед", 500),
-
                 new UserMeal(LocalDateTime.of(2020, Month.JANUARY, 30, 10, 0), "Завтрак", 500),
                 new UserMeal(LocalDateTime.of(2020, Month.JANUARY, 30, 13, 0), "Обед", 1000),
                 new UserMeal(LocalDateTime.of(2020, Month.JANUARY, 30, 20, 0), "Ужин", 500),
                 new UserMeal(LocalDateTime.of(2020, Month.JANUARY, 31, 0, 0), "Еда на граничное значение", 100),
                 new UserMeal(LocalDateTime.of(2020, Month.JANUARY, 31, 10, 0), "Завтрак", 1000),
-
+                new UserMeal(LocalDateTime.of(2020, Month.JANUARY, 31, 13, 0), "Обед", 500),
                 new UserMeal(LocalDateTime.of(2020, Month.JANUARY, 31, 20, 0), "Ужин", 410)
         );
 
@@ -30,7 +28,7 @@ public class UserMealsUtil {
 
         System.out.println();
         System.out.println("filteredByCyclesOptional2");
-        System.out.println(filteredByCyclesOptional2(meals, LocalTime.of(7, 0), LocalTime.of(12, 0), 2000));
+        System.out.println(filteredByCyclesOptional2(meals, LocalTime.of(7, 0), LocalTime.of(14, 0), 2000));
 
         System.out.println();
         System.out.println("filteredByStreams");
@@ -57,19 +55,36 @@ public class UserMealsUtil {
 
     static List<UserMealWithExcess> filteredByCyclesOptional2(List<UserMeal> meals, LocalTime startTime, LocalTime endTime, int maxCaloriesPerDay) {
         Map<LocalDate, Integer> caloriesPerDay = new HashMap<>();
-        return getMealWithExcess(meals, startTime, endTime, maxCaloriesPerDay, caloriesPerDay, 0);
+        List<UserMealWithExcess> mealWithExcessList = new ArrayList<>();
+        if (meals.isEmpty()) return mealWithExcessList;
+        if (meals.size() == 1) {
+            UserMeal meal = meals.get(0);
+            caloriesPerDay.merge(meal.getDate(), meal.getCalories(), Integer::sum);
+            addMealWithExcess(startTime,
+                    endTime,
+                    maxCaloriesPerDay,
+                    meal,
+                    mealWithExcessList,
+                    caloriesPerDay);
+            return mealWithExcessList;
+        }
+        setMealWithExcess(meals, startTime, endTime, maxCaloriesPerDay, caloriesPerDay, mealWithExcessList, 0);
+        return mealWithExcessList;
     }
 
-    private static List<UserMealWithExcess> getMealWithExcess(List<UserMeal> meals, LocalTime startTime, LocalTime endTime, int maxCaloriesPerDay, Map<LocalDate, Integer> caloriesPerDay, int idx) {
+    private static void setMealWithExcess(List<UserMeal> meals,
+                                          LocalTime startTime,
+                                          LocalTime endTime,
+                                          int maxCaloriesPerDay,
+                                          Map<LocalDate, Integer> caloriesPerDay,
+                                          List<UserMealWithExcess> mealWithExcessList,
+                                          int idx) {
         UserMeal meal = meals.get(idx);
-        List<UserMealWithExcess> mealWithExcessList = new ArrayList<>();
         caloriesPerDay.merge(meal.getDate(), meal.getCalories(), Integer::sum);
-        if (idx == meals.size() - 1) return mealWithExcessList;
+        if (idx == meals.size() - 1) return;
 
-        mealWithExcessList.addAll(getMealWithExcess(meals, startTime, endTime, maxCaloriesPerDay, caloriesPerDay, ++idx));
-
+        setMealWithExcess(meals, startTime, endTime, maxCaloriesPerDay, caloriesPerDay, mealWithExcessList, ++idx);
         addMealWithExcess(startTime, endTime, maxCaloriesPerDay, meal, mealWithExcessList, caloriesPerDay);
-        return mealWithExcessList;
     }
 
     private static void addMealWithExcess(LocalTime startTime, LocalTime endTime, int maxCaloriesPerDay, UserMeal meal, List<UserMealWithExcess> mealWithExcessList, Map<LocalDate, Integer> caloriesPerDay) {

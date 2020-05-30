@@ -32,6 +32,10 @@ public class UserMealWithExcess {
         return dateTime.toLocalDate();
     }
 
+    public LocalDateTime getDateTime() {
+        return dateTime;
+    }
+
     @Override
     public String toString() {
         return "UserMealWithExcess{" +
@@ -40,5 +44,27 @@ public class UserMealWithExcess {
                 ", calories=" + calories +
                 ", excess=" + excess +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        UserMealWithExcess that = (UserMealWithExcess) o;
+
+        if (calories != that.calories) return false;
+        if (excess != that.excess) return false;
+        if (dateTime != null ? !dateTime.equals(that.dateTime) : that.dateTime != null) return false;
+        return description != null ? description.equals(that.description) : that.description == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = dateTime != null ? dateTime.hashCode() : 0;
+        result = 31 * result + (description != null ? description.hashCode() : 0);
+        result = 31 * result + calories;
+        result = 31 * result + (excess ? 1 : 0);
+        return result;
     }
 }
