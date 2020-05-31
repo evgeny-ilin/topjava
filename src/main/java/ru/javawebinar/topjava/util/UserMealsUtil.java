@@ -57,33 +57,26 @@ public class UserMealsUtil {
         Map<LocalDate, Integer> caloriesPerDay = new HashMap<>();
         List<UserMealWithExcess> mealWithExcessList = new ArrayList<>();
         if (meals.isEmpty()) return mealWithExcessList;
-        if (meals.size() == 1) {
-            UserMeal meal = meals.get(0);
-            caloriesPerDay.merge(meal.getDate(), meal.getCalories(), Integer::sum);
-            addMealWithExcess(startTime,
-                    endTime,
-                    maxCaloriesPerDay,
-                    meal,
-                    mealWithExcessList,
-                    caloriesPerDay);
-            return mealWithExcessList;
-        }
-        setMealWithExcess(meals, startTime, endTime, maxCaloriesPerDay, caloriesPerDay, mealWithExcessList, 0);
+
+        recAddMealWithExcess(meals, startTime, endTime, maxCaloriesPerDay, caloriesPerDay, mealWithExcessList, 0);
         return mealWithExcessList;
     }
 
-    private static void setMealWithExcess(List<UserMeal> meals,
-                                          LocalTime startTime,
-                                          LocalTime endTime,
-                                          int maxCaloriesPerDay,
-                                          Map<LocalDate, Integer> caloriesPerDay,
-                                          List<UserMealWithExcess> mealWithExcessList,
-                                          int idx) {
+    private static void recAddMealWithExcess(List<UserMeal> meals,
+                                             LocalTime startTime,
+                                             LocalTime endTime,
+                                             int maxCaloriesPerDay,
+                                             Map<LocalDate, Integer> caloriesPerDay,
+                                             List<UserMealWithExcess> mealWithExcessList,
+                                             int idx) {
         UserMeal meal = meals.get(idx);
         caloriesPerDay.merge(meal.getDate(), meal.getCalories(), Integer::sum);
-        if (idx == meals.size() - 1) return;
+        if (idx == meals.size() - 1) {
+            addMealWithExcess(startTime, endTime, maxCaloriesPerDay, meal, mealWithExcessList, caloriesPerDay);
+            return;
+        }
 
-        setMealWithExcess(meals, startTime, endTime, maxCaloriesPerDay, caloriesPerDay, mealWithExcessList, ++idx);
+        recAddMealWithExcess(meals, startTime, endTime, maxCaloriesPerDay, caloriesPerDay, mealWithExcessList, ++idx);
         addMealWithExcess(startTime, endTime, maxCaloriesPerDay, meal, mealWithExcessList, caloriesPerDay);
     }
 
