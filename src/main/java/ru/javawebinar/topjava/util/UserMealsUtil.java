@@ -69,12 +69,12 @@ public class UserMealsUtil {
                                              Map<LocalDate, Integer> caloriesPerDay,
                                              List<UserMealWithExcess> mealWithExcessList,
                                              int idx) {
-        UserMeal meal = meals.get(idx);
-        caloriesPerDay.merge(meal.getDate(), meal.getCalories(), Integer::sum);
-        if (idx == meals.size() - 1) {
-            addMealWithExcess(startTime, endTime, maxCaloriesPerDay, meal, mealWithExcessList, caloriesPerDay);
+        if (idx == meals.size()) {
             return;
         }
+
+        UserMeal meal = meals.get(idx);
+        caloriesPerDay.merge(meal.getDate(), meal.getCalories(), Integer::sum);
 
         recAddMealWithExcess(meals, startTime, endTime, maxCaloriesPerDay, caloriesPerDay, mealWithExcessList, ++idx);
         addMealWithExcess(startTime, endTime, maxCaloriesPerDay, meal, mealWithExcessList, caloriesPerDay);
