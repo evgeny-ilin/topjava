@@ -56,7 +56,6 @@ public class UserMealsUtil {
     static List<UserMealWithExcess> filteredByCyclesOptional2(List<UserMeal> meals, LocalTime startTime, LocalTime endTime, int maxCaloriesPerDay) {
         Map<LocalDate, Integer> caloriesPerDay = new HashMap<>();
         List<UserMealWithExcess> mealWithExcessList = new ArrayList<>();
-        if (meals.isEmpty()) return mealWithExcessList;
 
         recAddMealWithExcess(meals, startTime, endTime, maxCaloriesPerDay, caloriesPerDay, mealWithExcessList, 0);
         return mealWithExcessList;
