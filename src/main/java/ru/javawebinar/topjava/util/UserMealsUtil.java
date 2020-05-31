@@ -110,7 +110,7 @@ public class UserMealsUtil {
     }
 
     static List<UserMealWithExcess> filteredByStreamsOptional2(List<UserMeal> meals, LocalTime startTime, LocalTime endTime, int maxCaloriesPerDay) {
-        return meals.stream()
+        return meals.stream().parallel()
                 .collect(new UserMealCollector(maxCaloriesPerDay, startTime, endTime));
     }
 }

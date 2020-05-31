@@ -12,10 +12,11 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 
-public class UserMealCollector implements Collector<UserMeal, List<UserMeal>, List<UserMealWithExcess>> {
+public class UserMealCollector implements Collector<UserMeal, List<UserMealWithExcess>, List<UserMealWithExcess>> {
     private int maxCaloriesPerDay;
     private Map<LocalDate, Integer> caloriesPerDayMap;
-    private LocalTime startTime, endTime;
+    private LocalTime startTime;
+    private LocalTime endTime;
 
     UserMealCollector(int maxCaloriesPerDay, LocalTime startTime, LocalTime endTime) {
         this.maxCaloriesPerDay = maxCaloriesPerDay;
@@ -25,41 +26,36 @@ public class UserMealCollector implements Collector<UserMeal, List<UserMeal>, Li
     }
 
     @Override
-    public Supplier<List<UserMeal>> supplier() {
+    public Supplier<List<UserMealWithExcess>> supplier() {
         return ArrayList::new;
     }
 
     @Override
-    public BiConsumer<List<UserMeal>, UserMeal> accumulator() {
+    public BiConsumer<List<UserMealWithExcess>, UserMeal> accumulator() {
         return (userMeals, meal) -> {
             caloriesPerDayMap.merge(meal.getDate(), meal.getCalories(), Integer::sum);
             if (TimeUtil.isBetweenHalfOpen(meal.getTime(), startTime, endTime)) {
-                userMeals.add(meal);
+                userMeals.add(new UserMealWithExcess(meal.getDateTime(),
+                        meal.getDescription(),
+                        meal.getCalories(),
+                        false));
             }
         };
     }
 
     @Override
-    public BinaryOperator<List<UserMeal>> combiner() {
+    public BinaryOperator<List<UserMealWithExcess>> combiner() {
         return ((userMeals, userMeals2) -> {
+            userMeals.forEach(meal -> meal.setExcess(caloriesPerDayMap.get(meal.getDate()) > maxCaloriesPerDay));
+            userMeals2.forEach(meal -> meal.setExcess(caloriesPerDayMap.get(meal.getDate()) > maxCaloriesPerDay));
             userMeals.addAll(userMeals2);
             return userMeals;
         });
     }
 
     @Override
-    public Function<List<UserMeal>, List<UserMealWithExcess>> finisher() {
-        return (meals) -> {
-            List<UserMealWithExcess> userMealWithExcessList = new ArrayList<>();
-            for (UserMeal meal : meals) {
-                UserMealWithExcess mealWithExcess = new UserMealWithExcess(meal.getDateTime(),
-                        meal.getDescription(),
-                        meal.getCalories(),
-                        caloriesPerDayMap.get(meal.getDate()) > maxCaloriesPerDay);
-                userMealWithExcessList.add(mealWithExcess);
-            }
-            return userMealWithExcessList;
-        };
+    public Function<List<UserMealWithExcess>, List<UserMealWithExcess>> finisher() {
+        return Function.identity();
     }
 
     @Override
