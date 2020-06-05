@@ -4,12 +4,11 @@ import java.time.LocalDateTime;
 
 public class UserMealWithExcess {
     private final LocalDateTime dateTime;
-
     private final String description;
-
     private final int calories;
 
     private final boolean excess;
+    private int id;
 
     public UserMealWithExcess(LocalDateTime dateTime, String description, int calories, boolean excess) {
         this.dateTime = dateTime;
