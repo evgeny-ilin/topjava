@@ -1,13 +1,13 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ page contentType="text/html;charset=UTF-8" %>
-<html>
+<html lang="ru">
 <head>
     <c:if test="${empty meal.id}">
-        <title>Add</title>
+        <title>Add meal</title>
     </c:if>
     <c:if test="${!empty meal.id}">
-        <title>Edit</title>
+        <title>Edit meal</title>
     </c:if>
 </head>
 <body>
