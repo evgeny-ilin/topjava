@@ -7,7 +7,7 @@ public class MealTo {
     private final String description;
     private final int calories;
     private final boolean excess;
-    private int id;
+    private final int id;
 
     public MealTo(int id, LocalDateTime dateTime, String description, int calories, boolean excess) {
         this.id = id;
