@@ -1,5 +1,3 @@
-<%@ page import="ru.javawebinar.topjava.model.Meal" %>
-<%@ page import="java.time.format.DateTimeFormatter" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ page contentType="text/html;charset=UTF-8" %>
@@ -15,21 +13,12 @@
 
 <form class="contact_form" action="meals" method="POST" name="contact_form">
     <input type="hidden" name="id" value="${meal.id}">
-    <%
-        if (request != null) {
-            Meal meal = (Meal) request.getAttribute("meal");
-            if (meal != null) {
-                String dateTime;
-                if (request.getHeader("user-agent").contains("Firefox")) {
-                    dateTime = meal.getDateTime().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm"));
-                    request.setAttribute("dateTimeForBrowser", dateTime);
-                } else {
-                    dateTime = meal.getDateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"));
-                    request.setAttribute("dateTimeForBrowser", dateTime);
-                }
-            }
-        }
-    %>
+    <c:set var="browserName" value="${header[\"user-agent\"]}" scope="session"/>
+    <fmt:parseDate value="${meal.dateTime}" type="date" pattern="yyyy-MM-dd'T'HH:mm" var="parsedDate"/>
+    <c:set var="browserDate" value="${meal.dateTime}"/>
+    <c:if test="${browserName.contains('Firefox') == true}">
+        <fmt:formatDate value="${parsedDate}" type="date" pattern="yyyy-MM-dd HH:mm" var="browserDate"/>
+    </c:if>
     <ul>
         <li>
             <h2>Input data</h2>
@@ -42,7 +31,7 @@
                     type="datetime-local"
                     name="dateTime"
                     id="dateTime"
-                    value="${dateTimeForBrowser}"
+                    value="${browserDate}"
                     required>
             <span class="form_hint">DD-MM-YYYY HH:MM</span>
         </li>

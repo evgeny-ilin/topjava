@@ -13,5 +13,5 @@ public interface MealDao {
 
     void delete(int id);
 
-    Meal update(int id, Meal meal);
+    Meal update(Meal meal);
 }

@@ -15,7 +15,7 @@ public class MealDaoInMemoryImpl implements MealDao {
     private AtomicInteger id = new AtomicInteger(0);
 
     public MealDaoInMemoryImpl() {
-        meals = new ConcurrentHashMap<Integer, Meal>();
+        meals = new ConcurrentHashMap<>();
         add(new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 10, 0), "Завтрак", 500));
         add(new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 13, 0), "Обед", 1000));
         add(new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 20, 0), "Ужин", 500));
@@ -27,7 +27,9 @@ public class MealDaoInMemoryImpl implements MealDao {
 
     @Override
     public Meal add(Meal meal) {
-        if (meal.getId() == 0) meal.setId(id.incrementAndGet());
+        if (meal.getId() == 0) {
+            meal.setId(id.incrementAndGet());
+        }
         meals.put(meal.getId(), meal);
         return meal;
     }
@@ -47,8 +49,7 @@ public class MealDaoInMemoryImpl implements MealDao {
     }
 
     @Override
-    public Meal update(int id, Meal meal) {
-        meals.merge(id, meal, ((oldMeal, newMeal) -> newMeal));
-        return meal;
+    public Meal update(Meal meal) {
+        return meals.computeIfPresent(meal.getId(), ((oldMeal, newMeal) -> newMeal));
     }
 }

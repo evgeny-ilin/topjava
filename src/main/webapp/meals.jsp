@@ -23,7 +23,7 @@
     <c:forEach items="${mealToList}" var="mealTo">
         <tr style="color: ${mealTo.excess ? 'C933FF' : '3BDB49'}">
             <fmt:parseDate value="${mealTo.dateTime}" type="date" pattern="yyyy-MM-dd'T'HH:mm" var="parsedDate"/>
-            <fmt:formatDate value="${parsedDate}" type="date" pattern="dd-MM-yyyy HH:mm" var="dateTime"/>
+            <fmt:formatDate value="${parsedDate}" type="date" pattern="yyyy-MM-dd HH:mm" var="dateTime"/>
             <td>${dateTime}</td>
             <td>${mealTo.description}</td>
             <td>${mealTo.calories}</td>
