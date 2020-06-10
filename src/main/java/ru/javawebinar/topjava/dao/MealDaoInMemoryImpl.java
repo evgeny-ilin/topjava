@@ -6,12 +6,12 @@ import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class MealDaoInMemoryImpl implements MealDao {
-    private ConcurrentMap<Integer, Meal> meals;
+    private Map<Integer, Meal> meals;
     private AtomicInteger id = new AtomicInteger(0);
 
     public MealDaoInMemoryImpl() {
@@ -29,8 +29,8 @@ public class MealDaoInMemoryImpl implements MealDao {
     public Meal add(Meal meal) {
         if (meal.getId() == 0) {
             meal.setId(id.incrementAndGet());
+            meals.put(meal.getId(), meal);
         }
-        meals.put(meal.getId(), meal);
         return meal;
     }
     @Override
@@ -50,6 +50,6 @@ public class MealDaoInMemoryImpl implements MealDao {
 
     @Override
     public Meal update(Meal meal) {
-        return meals.computeIfPresent(meal.getId(), ((oldMeal, newMeal) -> newMeal));
+        return meals.computeIfPresent(meal.getId(), (key, value) -> value = meal);
     }
 }

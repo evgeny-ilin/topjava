@@ -5,7 +5,6 @@ import ru.javawebinar.topjava.model.MealTo;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -25,7 +24,6 @@ public class MealsUtil {
         return meals.stream()
                 .filter(meal -> isBetweenInclusive(meal.getTime(), startTime, endTime))
                 .map(meal -> createTo(meal, caloriesSumByDate.get(meal.getDate()) > caloriesPerDay))
-                .sorted(Comparator.comparing(MealTo::getDateTime))
                 .collect(Collectors.toList());
     }
 

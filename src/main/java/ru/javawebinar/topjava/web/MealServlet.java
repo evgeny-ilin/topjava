@@ -14,7 +14,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,11 +22,11 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 public class MealServlet extends HttpServlet {
     private static final Logger log = getLogger(UserServlet.class);
-    private static String MEALS = "meals";
-    private static String MEAL = "meal.jsp";
+    private static final String MEALS = "meals";
+    private static final String MEAL = "meal.jsp";
+    private static final int LIMIT_MEALS_TO_TRACE = 20;
+
     private MealDao dao;
-    private static final DateTimeFormatter formatterFirefox = DateTimeFormatter.ofPattern("dd-MM-yyyy'T'HH:mm");
-    private static final DateTimeFormatter formatterOthers = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
 
     @Override
     public void init() throws ServletException {
@@ -74,9 +73,9 @@ public class MealServlet extends HttpServlet {
     private void refreshMeals(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         log.debug("Refresh meals");
         List<Meal> meals = dao.getAll();
-        log.trace("Meals {}", meals.stream().map(Meal::toString).limit(20).collect(Collectors.joining(", ")));
+        log.trace("Meals {}", meals.stream().map(Meal::toString).limit(LIMIT_MEALS_TO_TRACE).collect(Collectors.joining(", ")));
         List<MealTo> mealToList = MealsUtil.filteredByStreams(meals, LocalTime.MIN, LocalTime.MAX, 2000);
-        log.trace("MealsTo {}", mealToList.stream().map(MealTo::toString).limit(20).collect(Collectors.joining(", ")));
+        log.trace("MealsTo {}", mealToList.stream().map(MealTo::toString).limit(LIMIT_MEALS_TO_TRACE).collect(Collectors.joining(", ")));
         request.setAttribute("mealToList", mealToList);
         request.getRequestDispatcher("meals.jsp").forward(request, response);
     }
@@ -86,14 +85,9 @@ public class MealServlet extends HttpServlet {
         log.debug("doPost");
         req.setCharacterEncoding("UTF-8");
         LocalDateTime dateTime;
-        String dateParam = req.getParameter("dateTime").replace(' ', 'T');
-        if (req.getHeader("user-agent").contains("Firefox")) {
-            dateTime = LocalDateTime.parse(dateParam, formatterFirefox);
-            log.debug("dateTime for Firefox {}", dateTime);
-        } else {
-            dateTime = LocalDateTime.parse(dateParam, formatterOthers);
-            log.debug("dateTime for others {}", dateTime);
-        }
+        String dateParam = req.getParameter("dateTime").replaceFirst(" ", "T");
+        dateTime = LocalDateTime.parse(dateParam);
+        log.debug("dateTime for others {}", dateTime);
 
         String description = req.getParameter("description");
         int calories = Integer.parseInt(req.getParameter("calories"));
