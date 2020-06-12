@@ -20,6 +20,7 @@
         <th>calories</th>
         <th>action</th>
     </tr>
+    <jsp:useBean id="mealToList" type="java.util.List<ru.javawebinar.topjava.model.MealTo>" scope="request"/>
     <c:forEach items="${mealToList}" var="mealTo">
         <tr style="color: ${mealTo.excess ? 'C933FF' : '3BDB49'}">
             <fmt:parseDate value="${mealTo.dateTime}" type="date" pattern="yyyy-MM-dd'T'HH:mm" var="parsedDate"/>

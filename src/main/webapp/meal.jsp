@@ -12,6 +12,7 @@
     height: 100vh;">
 
 <form class="contact_form" action="meals" method="POST" name="contact_form">
+    <jsp:useBean id="meal" type="ru.javawebinar.topjava.model.Meal" scope="request"/>
     <input type="hidden" name="id" value="${meal.id}">
     <c:set var="browserName" value="${header[\"user-agent\"]}" scope="session"/>
     <fmt:parseDate value="${meal.dateTime}" type="date" pattern="yyyy-MM-dd'T'HH:mm" var="parsedDate"/>
