@@ -14,17 +14,16 @@ import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThrows;
-import static ru.javawebinar.topjava.AbstractTestData.ADMIN_ID;
-import static ru.javawebinar.topjava.AbstractTestData.USER_ID;
+import static org.junit.Assert.*;
 import static ru.javawebinar.topjava.MealTestData.*;
+import static ru.javawebinar.topjava.UserTestData.*;
 
 @ContextConfiguration({
-        "classpath:spring/spring-app.xml",
+        "classpath:spring/spring-app-jdbc.xml",
         "classpath:spring/spring-test-db.xml"
 })
 @RunWith(SpringRunner.class)
@@ -44,8 +43,13 @@ public class MealServiceTest {
 
     @Test
     public void get() {
-        Meal meal = service.get(MEAL_ID, USER_ID);
-        assertThat(meal).isEqualToComparingFieldByField(MEAL);
+        Meal meal = service.get(USER_MEAL_1_ID, USER_ID);
+        assertThat(meal).isEqualToComparingFieldByField(USER_MEAL_1);
+    }
+
+    @Test
+    public void getNotFound() {
+        assertThrows(NotFoundException.class, () -> service.get(NOT_FOUND_MEAL_ID, ADMIN_ID));
     }
 
     @Test
@@ -55,8 +59,8 @@ public class MealServiceTest {
 
     @Test
     public void delete() {
-        service.delete(MEAL_ID, USER_ID);
-        assertNull(repository.get(MEAL_ID, USER_ID));
+        service.delete(USER_MEAL_1_ID, USER_ID);
+        assertNull(repository.get(USER_MEAL_1_ID, USER_ID));
     }
 
     @Test
@@ -65,35 +69,50 @@ public class MealServiceTest {
     }
 
     @Test
+    public void deleteNotFound() {
+        assertThrows(NotFoundException.class, () -> service.delete(NOT_FOUND_MEAL_ID, USER_ID));
+    }
+
+    @Test
     public void getBetweenInclusive() {
-        List<Meal> filteredMeals = service.getBetweenInclusive(LocalDate.of(2020, Month.JANUARY, 30), LocalDate.of(2020, Month.JANUARY, 31), USER_ID);
-        assertThat(filteredMeals).containsAll(USER_MEALS);
+        final List<Meal> filteredMeals = service.getBetweenInclusive(LocalDate.of(2020, Month.JANUARY, 30), LocalDate.of(2020, Month.JANUARY, 30), USER_ID);
+        final List<Meal> FILTERED_USER_MEALS = Arrays.asList(
+                USER_MEAL_3,
+                USER_MEAL_2,
+                USER_MEAL_1
+        );
+        assertEquals(FILTERED_USER_MEALS, filteredMeals);
     }
 
     @Test
     public void getAll() {
-        List<Meal> meals = service.getAll(USER_ID);
-        assertThat(meals).containsAll(USER_MEALS);
+        final List<Meal> meals = service.getAll(USER_ID);
+        final List<Meal> ALL_USER_MEALS = Arrays.asList(
+                USER_MEAL_4,
+                USER_MEAL_3,
+                USER_MEAL_2,
+                USER_MEAL_1
+        );
+        assertEquals(ALL_USER_MEALS, meals);
     }
 
     @Test
     public void update() {
-        Meal updated = getUpdated();
-        service.update(updated, USER_ID);
-        assertThat(service.get(updated.getId(), USER_ID)).isEqualToComparingFieldByField(updated);
+        service.update(USER_UPDATED_MEAL, USER_ID);
+        assertThat(service.get(USER_UPDATED_MEAL_ID, USER_ID)).isEqualToComparingFieldByField(USER_UPDATED_MEAL);
     }
 
     @Test
     public void updateAnotherUser() {
-        assertThrows(NotFoundException.class, () -> service.update(getUpdated(), ADMIN_ID));
+        assertThrows(NotFoundException.class, () -> service.update(USER_UPDATED_MEAL, ADMIN_ID));
     }
 
     @Test
     public void create() {
-        Meal newMeal = getNew();
-        Meal created = service.create(newMeal, USER_ID);
+        Meal created = service.create(USER_NEW_MEAL, USER_ID);
         Integer newId = created.getId();
-        newMeal.setId(newId);
-        assertThat(created).isEqualToComparingFieldByField(newMeal);
+        USER_NEW_MEAL.setId(newId);
+        assertThat(created).isEqualToComparingFieldByField(USER_NEW_MEAL);
+        assertThat(service.get(newId, USER_ID)).isEqualToComparingFieldByField(USER_NEW_MEAL);
     }
 }

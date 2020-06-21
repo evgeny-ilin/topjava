@@ -1,8 +1,7 @@
 package ru.javawebinar.topjava.repository.inmemory;
 
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
-import ru.javawebinar.topjava.AbstractTestData;
+import ru.javawebinar.topjava.UserTestData;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.repository.UserRepository;
 
@@ -15,13 +14,12 @@ import static ru.javawebinar.topjava.UserTestData.USER;
 
 
 @Repository
-@Profile("meals_memory")
 public class InMemoryUserRepository extends InMemoryBaseRepository<User> implements UserRepository {
 
     public void init() {
         map.clear();
-        map.put(AbstractTestData.USER_ID, USER);
-        map.put(AbstractTestData.ADMIN_ID, ADMIN);
+        map.put(UserTestData.USER_ID, USER);
+        map.put(UserTestData.ADMIN_ID, ADMIN);
     }
 
     @Override

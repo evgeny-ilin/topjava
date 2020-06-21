@@ -9,7 +9,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringRunner;
-import ru.javawebinar.topjava.AbstractTestData;
 import ru.javawebinar.topjava.model.Role;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.repository.UserRepository;
@@ -22,7 +21,7 @@ import static org.junit.Assert.assertThrows;
 import static ru.javawebinar.topjava.UserTestData.*;
 
 @ContextConfiguration({
-        "classpath:spring/spring-app.xml",
+        "classpath:spring/spring-app-jdbc.xml",
         "classpath:spring/spring-test-db.xml"
 })
 @RunWith(SpringRunner.class)
@@ -59,24 +58,24 @@ public class UserServiceTest {
 
     @Test
     public void delete() throws Exception {
-        service.delete(AbstractTestData.USER_ID);
-        assertNull(repository.get(AbstractTestData.USER_ID));
+        service.delete(USER_ID);
+        assertNull(repository.get(USER_ID));
     }
 
     @Test
     public void deletedNotFound() throws Exception {
-        assertThrows(NotFoundException.class, () -> service.delete(AbstractTestData.NOT_FOUND));
+        assertThrows(NotFoundException.class, () -> service.delete(NOT_FOUND_MEAL_ID));
     }
 
     @Test
     public void get() throws Exception {
-        User user = service.get(AbstractTestData.USER_ID);
+        User user = service.get(USER_ID);
         assertMatch(user, USER);
     }
 
     @Test
     public void getNotFound() throws Exception {
-        assertThrows(NotFoundException.class, () -> service.get(AbstractTestData.NOT_FOUND));
+        assertThrows(NotFoundException.class, () -> service.get(NOT_FOUND_MEAL_ID));
     }
 
     @Test
@@ -89,7 +88,7 @@ public class UserServiceTest {
     public void update() throws Exception {
         User updated = getUpdated();
         service.update(updated);
-        assertMatch(service.get(AbstractTestData.USER_ID), updated);
+        assertMatch(service.get(USER_ID), updated);
     }
 
     @Test

@@ -11,10 +11,10 @@ import org.springframework.test.context.junit4.SpringRunner;
 import ru.javawebinar.topjava.repository.inmemory.InMemoryUserRepository;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
-import static ru.javawebinar.topjava.AbstractTestData.NOT_FOUND;
-import static ru.javawebinar.topjava.AbstractTestData.USER_ID;
+import static ru.javawebinar.topjava.UserTestData.NOT_FOUND_MEAL_ID;
+import static ru.javawebinar.topjava.UserTestData.USER_ID;
 
-@ContextConfiguration({"classpath:spring/spring-app.xml", "classpath:spring/spring-db.xml"})
+@ContextConfiguration({"classpath:spring/spring-app-inmemory.xml", "classpath:spring/spring-db.xml"})
 @RunWith(SpringRunner.class)
 @ActiveProfiles("meals_memory")
 public class InMemoryAdminRestControllerSpringTest {
@@ -38,6 +38,6 @@ public class InMemoryAdminRestControllerSpringTest {
 
     @Test
     public void deleteNotFound() throws Exception {
-        Assert.assertThrows(NotFoundException.class, () -> controller.delete(NOT_FOUND));
+        Assert.assertThrows(NotFoundException.class, () -> controller.delete(NOT_FOUND_MEAL_ID));
     }
 }

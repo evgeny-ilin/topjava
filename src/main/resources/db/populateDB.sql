@@ -14,17 +14,16 @@ INSERT INTO user_roles (role, user_id)
 VALUES ('ROLE_USER', 100000),
        ('ROLE_ADMIN', 100001);
 
-INSERT INTO meals (description, calories, datetime, user_id)
-VALUES ('Завтрак', 500, to_timestamp('30.01.2020 10:00', 'DD.MM.YYYY HH24:MI'), 100000);
-INSERT INTO meals (description, calories, datetime, user_id)
-VALUES ('Обед', 1000, to_timestamp('30.01.2020 13:00', 'DD.MM.YYYY HH24:MI'), 100000);
-INSERT INTO meals (description, calories, datetime, user_id)
-VALUES ('Ужин', 500, to_timestamp('30.01.2020 20:00', 'DD.MM.YYYY HH24:MI'), 100000);
-INSERT INTO meals (description, calories, datetime, user_id)
-VALUES ('Еда в пограничное время', 100, to_timestamp('31.01.2020 00:00', 'DD.MM.YYYY HH24:MI'), 100001);
-INSERT INTO meals (description, calories, datetime, user_id)
-VALUES ('Завтрак', 1000, to_timestamp('31.01.2020 10:00', 'DD.MM.YYYY HH24:MI'), 100001);
-INSERT INTO meals (description, calories, datetime, user_id)
-VALUES ('Обед', 500, to_timestamp('31.01.2020 13:00', 'DD.MM.YYYY HH24:MI'), 100001);
-INSERT INTO meals (description, calories, datetime, user_id)
-VALUES ('Ужин', 410, to_timestamp('31.01.2020 20:00', 'DD.MM.YYYY HH24:MI'), 100001);
+INSERT INTO meals (description, calories, date_time, user_id)
+VALUES ('User_Завтрак', 500, to_timestamp('30.01.2020 10:00', 'DD.MM.YYYY HH24:MI')::timestamp without time zone,
+        100000),
+       ('User_Обед', 1000, to_timestamp('30.01.2020 13:00', 'DD.MM.YYYY HH24:MI')::timestamp without time zone, 100000),
+       ('User_Ужин', 500, to_timestamp('30.01.2020 20:00', 'DD.MM.YYYY HH24:MI')::timestamp without time zone, 100000),
+       ('User_Ночные бдения', 500, to_timestamp('31.01.2020 00:00', 'DD.MM.YYYY HH24:MI')::timestamp without time zone,
+        100000),
+       ('Admin_Еда в пограничное время', 100,
+        to_timestamp('31.01.2020 00:00', 'DD.MM.YYYY HH24:MI')::timestamp without time zone, 100001),
+       ('Admin_Завтрак', 1000, to_timestamp('31.01.2020 10:00', 'DD.MM.YYYY HH24:MI')::timestamp without time zone,
+        100001),
+       ('Admin_Обед', 500, to_timestamp('31.01.2020 13:00', 'DD.MM.YYYY HH24:MI')::timestamp without time zone, 100001),
+       ('Admin_Ужин', 410, to_timestamp('31.01.2020 20:00', 'DD.MM.YYYY HH24:MI')::timestamp without time zone, 100001);
