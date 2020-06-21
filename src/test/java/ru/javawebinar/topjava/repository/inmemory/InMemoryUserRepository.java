@@ -14,6 +14,7 @@ import static ru.javawebinar.topjava.UserTestData.USER;
 
 
 @Repository
+//@Profile("meals_memory")
 public class InMemoryUserRepository extends InMemoryBaseRepository<User> implements UserRepository {
 
     public void init() {

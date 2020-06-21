@@ -16,7 +16,9 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThrows;
 import static ru.javawebinar.topjava.AbstractTestData.ADMIN_ID;
 import static ru.javawebinar.topjava.AbstractTestData.USER_ID;
 import static ru.javawebinar.topjava.MealTestData.*;
@@ -27,6 +29,7 @@ import static ru.javawebinar.topjava.MealTestData.*;
 })
 @RunWith(SpringRunner.class)
 @Sql(scripts = "classpath:db/populateDB.sql", config = @SqlConfig(encoding = "UTF-8"))
+//@ActiveProfiles("meals_jdbc")
 public class MealServiceTest {
     static {
         // Only for postgres driver logging
@@ -43,7 +46,7 @@ public class MealServiceTest {
     @Test
     public void get() {
         Meal meal = service.get(MEAL_ID, USER_ID);
-        assertEquals(MEAL, meal);
+        assertThat(meal).isEqualToComparingFieldByField(MEAL);
     }
 
     @Test
@@ -65,20 +68,20 @@ public class MealServiceTest {
     @Test
     public void getBetweenInclusive() {
         List<Meal> filteredMeals = service.getBetweenInclusive(LocalDate.of(2020, Month.JANUARY, 30), LocalDate.of(2020, Month.JANUARY, 31), USER_ID);
-        assertArrayEquals(USER_MEALS.toArray(), filteredMeals.toArray());
+        assertThat(filteredMeals).containsAll(USER_MEALS);
     }
 
     @Test
     public void getAll() {
         List<Meal> meals = service.getAll(USER_ID);
-        assertArrayEquals(USER_MEALS.toArray(), meals.toArray());
+        assertThat(meals).containsAll(USER_MEALS);
     }
 
     @Test
     public void update() {
         Meal updated = getUpdated();
         service.update(updated, USER_ID);
-        assertEquals(updated, service.get(updated.getId(), USER_ID));
+        assertThat(service.get(updated.getId(), USER_ID)).isEqualToComparingFieldByField(updated);
     }
 
     @Test
@@ -92,6 +95,6 @@ public class MealServiceTest {
         Meal created = service.create(newMeal, USER_ID);
         Integer newId = created.getId();
         newMeal.setId(newId);
-        assertEquals(newMeal, created);
+        assertThat(created).isEqualToComparingFieldByField(newMeal);
     }
 }
