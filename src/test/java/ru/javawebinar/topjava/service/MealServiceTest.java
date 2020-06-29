@@ -1,7 +1,14 @@
 package ru.javawebinar.topjava.service;
 
+import org.junit.AfterClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
@@ -12,7 +19,12 @@ import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Month;
+import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static org.junit.Assert.assertThrows;
 import static ru.javawebinar.topjava.MealTestData.*;
@@ -30,6 +42,39 @@ public class MealServiceTest {
 
     @Autowired
     private MealService service;
+
+    private static final Logger log = LoggerFactory.getLogger(MealServiceTest.class);
+    private static String watchedLog = "";
+    private static Map<String, Long> timingMap = new HashMap<>();
+    private static LocalDateTime start;
+    @Rule
+    public final TestRule watchman = new TestWatcher() {
+        @Override
+        protected void starting(Description description) {
+            start = LocalDateTime.now();
+            super.starting(description);
+        }
+
+        @Override
+        protected void finished(Description description) {
+            super.finished(description);
+            LocalDateTime end = LocalDateTime.now();
+            long time = start.until(LocalDateTime.now(), ChronoUnit.MILLIS);
+            timingMap.put(description.getDisplayName(), time);
+            log.info("\n Test {} completed in {} ms", description.getDisplayName(), time);
+        }
+    };
+
+    @AfterClass
+    public static void finish() {
+        log.info("OVERALL STATS:");
+        AtomicLong sum = new AtomicLong();
+        timingMap.forEach((key, value) -> {
+            log.info("Test {} completed in {} ms", key, value);
+            sum.addAndGet(value);
+        });
+        log.info("All tests completed in {} ms", sum.get());
+    }
 
     @Test
     public void delete() throws Exception {

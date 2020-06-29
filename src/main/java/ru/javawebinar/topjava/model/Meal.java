@@ -30,7 +30,7 @@ public class Meal extends AbstractBaseEntity {
 
     @Column(name = "description", nullable = false)
     @NotBlank
-    @Size(max = 100)
+    @Size(min = 2, max = 120)
     private String description;
 
     @Column(name = "calories", nullable = false)
