@@ -4,8 +4,11 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.util.StringUtils;
 import ru.javawebinar.topjava.model.Meal;
+import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.web.meal.MealRestController;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -25,6 +28,8 @@ public class MealServlet extends HttpServlet {
 
     private ConfigurableApplicationContext springContext;
     private MealRestController mealController;
+    @PersistenceContext
+    private EntityManager em;
 
     @Override
     public void init(ServletConfig config) throws ServletException {
@@ -42,10 +47,12 @@ public class MealServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
+        User user = em.getReference(User.class, SecurityUtil.authUserId());
         Meal meal = new Meal(
                 LocalDateTime.parse(request.getParameter("dateTime")),
                 request.getParameter("description"),
-                Integer.parseInt(request.getParameter("calories")));
+                Integer.parseInt(request.getParameter("calories")),
+                user);
 
         if (StringUtils.isEmpty(request.getParameter("id"))) {
             mealController.create(meal);
@@ -67,8 +74,9 @@ public class MealServlet extends HttpServlet {
                 break;
             case "create":
             case "update":
+                User user = em.getReference(User.class, SecurityUtil.authUserId());
                 final Meal meal = "create".equals(action) ?
-                        new Meal(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), "", 1000) :
+                        new Meal(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), "", 1000, user) :
                         mealController.get(getId(request));
                 request.setAttribute("meal", meal);
                 request.getRequestDispatcher("/mealForm.jsp").forward(request, response);
