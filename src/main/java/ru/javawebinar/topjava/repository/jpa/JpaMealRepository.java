@@ -5,7 +5,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.repository.MealRepository;
-import ru.javawebinar.topjava.service.UserService;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -16,13 +15,8 @@ import java.util.List;
 @Repository
 @Transactional(readOnly = true)
 public class JpaMealRepository implements MealRepository {
-    private final UserService userService;
     @PersistenceContext
     private EntityManager em;
-
-    public JpaMealRepository(UserService service) {
-        this.userService = service;
-    }
 
     @Override
     @Transactional
