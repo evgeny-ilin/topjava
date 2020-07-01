@@ -1,7 +1,5 @@
 package ru.javawebinar.topjava.service;
 
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
 import org.junit.AfterClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -73,7 +71,6 @@ public class MealServiceTest {
     }
 
     @Test
-    @Fetch(FetchMode.SELECT)
     public void get() throws Exception {
         Meal actual = mealService.get(ADMIN_MEAL_ID, ADMIN_ID);
         MEAL_MATCHER.assertMatch(actual, ADMIN_MEAL1);
