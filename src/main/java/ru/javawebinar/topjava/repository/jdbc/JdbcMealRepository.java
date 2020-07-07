@@ -11,6 +11,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.repository.MealRepository;
+import ru.javawebinar.topjava.util.DateTimeUtil;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -42,7 +43,7 @@ public class JdbcMealRepository implements MealRepository {
                 .addValue("id", meal.getId())
                 .addValue("description", meal.getDescription())
                 .addValue("calories", meal.getCalories())
-                .addValue("date_time", meal.getDateTime())
+                .addValue("date_time", DateTimeUtil.toString(meal.getDateTime()))
                 .addValue("user_id", userId);
 
         if (meal.isNew()) {
@@ -51,7 +52,7 @@ public class JdbcMealRepository implements MealRepository {
         } else {
             if (namedParameterJdbcTemplate.update("" +
                     "UPDATE meals " +
-                    "   SET description=:description, calories=:calories, date_time=:date_time " +
+                    "   SET description=:description, calories=:calories, date_time=to_timestamp(:date_time,'yyyy-MM-dd HH24:mi:ss') " +
                     " WHERE id=:id AND user_id=:user_id", map) == 0) {
                 return null;
             }
@@ -80,7 +81,7 @@ public class JdbcMealRepository implements MealRepository {
     @Override
     public List<Meal> getBetweenHalfOpen(LocalDateTime startDateTime, LocalDateTime endDateTime, int userId) {
         return jdbcTemplate.query(
-                "SELECT * FROM meals WHERE user_id=?  AND date_time >=  ? AND date_time < ? ORDER BY date_time DESC",
-                ROW_MAPPER, userId, startDateTime, endDateTime);
+                "SELECT * FROM meals WHERE user_id=? AND date_time >= to_timestamp(?,'yyyy-MM-dd HH24:mi:ss') AND date_time < to_timestamp(?, 'yyyy-MM-dd HH24:mi:ss') ORDER BY date_time DESC",
+                ROW_MAPPER, userId, DateTimeUtil.toString(startDateTime), DateTimeUtil.toString(endDateTime));
     }
 }
