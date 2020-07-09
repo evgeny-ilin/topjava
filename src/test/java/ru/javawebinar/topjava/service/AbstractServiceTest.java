@@ -19,11 +19,12 @@ import java.util.concurrent.TimeUnit;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @RunWith(Parameterized.class)
-public abstract class AbstractTest {
+public abstract class AbstractServiceTest {
     private static final Logger log = getLogger("result");
     private static final StringBuilder results = new StringBuilder();
     public static UserService userService;
     public static MealService mealService;
+    //TODO • сводка по времени выполнения накапливается, посмотри вывод последнего тестового класса
     @Rule
     // http://stackoverflow.com/questions/14892125/what-is-the-best-practice-to-determine-the-execution-time-of-the-bussiness-relev
     public final Stopwatch stopwatch = new Stopwatch() {

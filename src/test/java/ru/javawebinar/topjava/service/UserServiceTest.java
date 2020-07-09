@@ -12,7 +12,7 @@ import static org.junit.Assert.assertThrows;
 import static ru.javawebinar.topjava.UserTestData.*;
 
 
-public class UserServiceTest extends AbstractTest {
+public class UserServiceTest extends AbstractServiceTest {
 
     @Test
     public void create() throws Exception {

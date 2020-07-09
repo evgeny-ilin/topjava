@@ -11,9 +11,9 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.repository.MealRepository;
-import ru.javawebinar.topjava.util.DateTimeUtil;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Repository
@@ -26,6 +26,14 @@ public class JdbcMealRepository implements MealRepository {
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     private final SimpleJdbcInsert insertMeal;
+
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+    /*TODO •Такое решение не подойдет :) Цель задания -  потренироваться с паттерном "шаблонный метод" и профилями Spring.
+5: Разделить JdbcMealRepository для HSQLDB (она не умеет работать с Java8 Time API) и Postgres через @Profile (для Postgres оставить LocalDateTime).
+Цель задания - потренироваться с паттерном "шаблонный метод" и профилями Spring. ...
+После выполнения разделения на основе профилей, можно предложить решение проще.
+    *  */
 
     @Autowired
     public JdbcMealRepository(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
@@ -43,7 +51,7 @@ public class JdbcMealRepository implements MealRepository {
                 .addValue("id", meal.getId())
                 .addValue("description", meal.getDescription())
                 .addValue("calories", meal.getCalories())
-                .addValue("date_time", DateTimeUtil.toString(meal.getDateTime()))
+                .addValue("date_time", meal.getDateTime().format(DATE_TIME_FORMATTER))
                 .addValue("user_id", userId);
 
         if (meal.isNew()) {
@@ -81,7 +89,7 @@ public class JdbcMealRepository implements MealRepository {
     @Override
     public List<Meal> getBetweenHalfOpen(LocalDateTime startDateTime, LocalDateTime endDateTime, int userId) {
         return jdbcTemplate.query(
-                "SELECT * FROM meals WHERE user_id=? AND date_time >= to_timestamp(?,'yyyy-MM-dd HH24:mi:ss') AND date_time < to_timestamp(?, 'yyyy-MM-dd HH24:mi:ss') ORDER BY date_time DESC",
-                ROW_MAPPER, userId, DateTimeUtil.toString(startDateTime), DateTimeUtil.toString(endDateTime));
+                "SELECT * FROM meals WHERE user_id=? AND date_time >= to_timestamp(?,'yyyy-MM-dd HH24:mi') AND date_time < to_timestamp(?, 'yyyy-MM-dd HH24:mi') ORDER BY date_time DESC",
+                ROW_MAPPER, userId, startDateTime.format(DATE_TIME_FORMATTER), endDateTime.format(DATE_TIME_FORMATTER));
     }
 }
